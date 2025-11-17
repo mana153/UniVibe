@@ -1,47 +1,64 @@
 package com.example.univibe
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.univibe.ui.theme.UniVibeTheme
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.univibe.adapters.EventAdapter
+import com.example.univibe.models.Event
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private val db = Firebase.firestore
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var eventAdapter: EventAdapter
+    private val eventList = mutableListOf<Event>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            UniVibeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+        setContentView(R.layout.activity_main)
+
+        // Initialize RecyclerView
+        recyclerView = findViewById(R.id.events_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        eventAdapter = EventAdapter(eventList)
+        recyclerView.adapter = eventAdapter
+
+        // Floating Action Button to add new events
+        findViewById<FloatingActionButton>(R.id.fab_add_event).setOnClickListener {
+            val intent = Intent(this, AddEventActivity::class.java)
+            startActivity(intent)
         }
+
+        loadEvents()
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun loadEvents() {
+        eventList.clear()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    UniVibeTheme {
-        Greeting("Android")
+        db.collection("events")
+            .orderBy("date")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val event = document.toObject(Event::class.java)
+                    eventList.add(event)
+                }
+                eventAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Log.w("MainActivity", "Error getting documents: ", exception)
+            }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload events when returning to MainActivity
+        loadEvents()
     }
 }

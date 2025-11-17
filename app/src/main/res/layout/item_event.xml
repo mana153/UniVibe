@@ -4,14 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp"
+        android:background="@color/pure_white">
+
+        <!-- Event Image -->
+        <ImageView
+            android:id="@+id/event_image"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/add_event" />
 
         <!-- Event Category Badge -->
         <TextView
@@ -21,8 +31,8 @@
             android:text="Category"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:background="@android:color/holo_blue_dark"
+            android:textColor="@color/pure_white"
+            android:backgroundTint="@color/pure_black"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:paddingTop="4dp"
@@ -35,42 +45,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Event Title"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="4dp" />
 
-        <!-- Event Description -->
-        <TextView
-            android:id="@+id/event_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Event description goes here..."
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp"
-            android:maxLines="3"
-            android:ellipsize="end" />
-
-        <!-- Event Date -->
+        <!-- Event Location and Date Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/event_location"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="📅 "
-                android:textSize="14sp" />
+                android:text="Location"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
 
             <TextView
                 android:id="@+id/event_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nov 17, 2025 - 5:00 PM"
-                android:textSize="14sp"
-                android:textColor="@android:color/black" />
+                android:text="Nov 17, 2025"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
 
     </LinearLayout>

@@ -67,28 +67,32 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tab_all"
-                    android:checked="true" />
+                    android:checked="true"
+                    android:contentDescription="@string/tab_all" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_events"
                     style="@style/Widget.UniVibe.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tab_events" />
+                    android:text="@string/tab_events"
+                    android:contentDescription="@string/tab_events" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_transport"
                     style="@style/Widget.UniVibe.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tab_transport" />
+                    android:text="@string/tab_transport"
+                    android:contentDescription="@string/tab_transport" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_lost_found"
                     style="@style/Widget.UniVibe.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/tab_lost_found" />
+                    android:text="@string/tab_lost_found"
+                    android:contentDescription="@string/tab_lost_found" />
 
             </com.google.android.material.chip.ChipGroup>
 
@@ -96,17 +100,37 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Event Grid (2 columns) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/events_recycler_view"
+    <!-- Content Area -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        android:padding="16dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="2"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/events_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp"
+                android:padding="16dp"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Modern FAB (Floating Action Button) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

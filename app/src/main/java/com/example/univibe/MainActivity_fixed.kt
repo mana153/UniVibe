@@ -5,17 +5,17 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.univibe.adapters.EventAdapter
+import com.example.univibe.adapters.EventAdapter2
 import com.example.univibe.databinding.ActivityMainBinding
 import com.example.univibe.models.Event
 import com.google.android.material.chip.Chip
 import com.google.firebase.firestore.FirebaseFirestore
 
-class MainActivity : AppCompatActivity() {
+class MainActivityFixed : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val db = FirebaseFirestore.getInstance()
-    private lateinit var adapter: EventAdapter
+    private lateinit var adapter: EventAdapter2
     private var allEvents: MutableList<Event> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,8 +23,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Toolbar
+        setSupportActionBar(binding.appBarLayout.findViewById(R.id.tv_discover_title))
+
         // RecyclerView
-        adapter = EventAdapter(listOf()) { event ->
+        adapter = EventAdapter2(listOf()) { event ->
             // TODO: Open Event detail
         }
         binding.eventsRecyclerView.layoutManager = GridLayoutManager(this, 2)
@@ -42,7 +45,6 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    // Already here
                     true
                 }
                 R.id.nav_search -> {
@@ -106,3 +108,4 @@ class MainActivity : AppCompatActivity() {
         adapter.updateData(filtered)
     }
 }
+

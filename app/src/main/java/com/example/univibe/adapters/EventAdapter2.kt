@@ -10,14 +10,13 @@ import com.example.univibe.models.Event
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class EventAdapter(private var items: List<Event>, private val onClick: (Event) -> Unit) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
+class EventAdapter2(private var items: List<Event>, private val onClick: (Event) -> Unit) : RecyclerView.Adapter<EventAdapter2.EventViewHolder>() {
 
     inner class EventViewHolder(private val binding: ItemEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Event) {
             binding.eventTitle.text = event.title
             binding.eventLocation.text = event.location
 
-            // Safely handle null timestamp
             if (event.date != null) {
                 val sdf = SimpleDateFormat("MMM d, yyyy - h:mm a", Locale.getDefault())
                 binding.eventDate.text = sdf.format(event.date!!.toDate())
@@ -57,3 +56,4 @@ class EventAdapter(private var items: List<Event>, private val onClick: (Event) 
         notifyDataSetChanged()
     }
 }
+

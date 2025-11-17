@@ -15,10 +15,16 @@ data class Event(
     val description: String = "",
 
     // Event Time/Date
-    val date: Timestamp = Timestamp.now(),
+    val date: Timestamp? = null,
+
+    // Image URL (Firebase Storage)
+    val imageUrl: String = "",
+
+    // Location
+    val location: String = "",
 
     // Metadata
     val createdBy: String = "", // User ID of the creator
-    val category: String = "", // e.g., "Sports", "Academic", "Social"
-    val createdAt: Timestamp = Timestamp.now()
+    val category: String = "", // e.g., "Events", "Transport", "Lost & Found"
+    val createdAt: Timestamp? = null
 )

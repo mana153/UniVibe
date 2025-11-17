@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name=".UniVibeApp"
@@ -13,18 +12,32 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UniVibe">
 
-        <!-- MainActivity - ONLY ONE DECLARATION -->
+        <!-- Splash Activity - LAUNCHER (First screen user sees) -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name">
+            android:name=".SplashActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- AddEventActivity -->
+        <!-- Login Activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
+        <!-- Main Activity (Discover feed with bottom navigation) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- Notifications Activity -->
+        <activity
+            android:name=".NotificationsActivity"
+            android:exported="false" />
+
+        <!-- Add Event Activity -->
         <activity
             android:name=".AddEventActivity"
             android:exported="false" />

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/grey_50">
 
-    <!-- Clean White AppBar (No Gradient) -->
+    <!-- Clean White AppBar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -102,10 +102,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:paddingBottom="80dp"
         android:padding="16dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="2"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <!-- Modern FAB (Floating Action Button) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_event"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="90dp"
+        android:contentDescription="@string/add_event"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/pure_white"
+        app:backgroundTint="@color/pure_black"
+        app:elevation="6dp"
+        app:borderWidth="0dp" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

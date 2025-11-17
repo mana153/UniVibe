@@ -56,6 +56,7 @@
 
     <!-- ========== ADD EVENT SCREEN ========== -->
     <string name="add_event_title">Add Event</string>
+    <string name="add_event">Add Event</string>
     <string name="add_new_event">Add New Event</string>
     <string name="add_your_event">Add Your</string>
     <string name="create_event_btn">Create Event</string>
@@ -123,6 +124,14 @@
     <string name="notif_shared_event">%1$s shared your event</string>
     <string name="notif_new_follower">%1$s started following you</string>
     <string name="notif_event_reminder">Event reminder: %1$s starts in 1 hour</string>
+
+    <!-- Missing simple notification strings referenced by layout -->
+    <string name="notif_1">Sarah liked your event</string>
+    <string name="notif_2">You were invited to "Campus Meetup"</string>
+    <string name="rsvp">RSVP</string>
+    <string name="notif_3">John commented: "Looks great!"</string>
+    <string name="notif_4">Campus Festival starts tomorrow</string>
+    <string name="notif_5">New message from Alex</string>
 
     <!-- ========== TRANSPORT SCREEN ========== -->
     <string name="transport_title">Transport</string>

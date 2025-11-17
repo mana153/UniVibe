@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/grey_50">
 
-    <!-- Clean White AppBar (No Gradient) -->
+    <!-- AppBar -->
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/pure_white"
@@ -19,7 +18,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Discover Title -->
+            <!-- Title -->
             <TextView
                 android:id="@+id/tv_discover_title"
                 android:layout_width="wrap_content"
@@ -29,8 +28,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <!-- Search Icon -->
             <ImageView
@@ -96,7 +94,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Event Grid (2 columns) -->
+    <!-- Event Grid -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/events_recycler_view"
         android:layout_width="match_parent"

@@ -3,8 +3,6 @@ package com.example.univibe.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.univibe.R
 import com.example.univibe.databinding.ItemEventBinding
 import com.example.univibe.models.Event
 import java.text.SimpleDateFormat
@@ -26,16 +24,6 @@ class EventAdapter(private var items: List<Event>, private val onClick: (Event) 
             }
 
             binding.eventCategory.text = event.category
-
-            if (event.imageUrl.isNotEmpty()) {
-                binding.eventImage.visibility = android.view.View.VISIBLE
-                Glide.with(binding.eventImage.context)
-                    .load(event.imageUrl)
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .into(binding.eventImage)
-            } else {
-                binding.eventImage.visibility = android.view.View.GONE
-            }
 
             binding.root.setOnClickListener { onClick(event) }
         }

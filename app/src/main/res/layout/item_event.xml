@@ -14,15 +14,6 @@
         android:padding="12dp"
         android:background="@color/pure_white">
 
-        <!-- Event Image -->
-        <ImageView
-            android:id="@+id/event_image"
-            android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:scaleType="centerCrop"
-            android:layout_marginBottom="8dp"
-            android:contentDescription="@string/add_event" />
-
         <!-- Event Category Badge -->
         <TextView
             android:id="@+id/event_category"

@@ -17,9 +17,6 @@ data class Event(
     // Event Time/Date
     val date: Timestamp? = null,
 
-    // Image URL (Firebase Storage)
-    val imageUrl: String = "",
-
     // Location
     val location: String = "",
 

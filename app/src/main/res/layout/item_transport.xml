@@ -24,6 +24,12 @@
             android:padding="6dp"
             android:layout_marginBottom="8dp" />
 
+        <TextView
+            android:id="@+id/transportArrivalTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Arrival: 10:00 AM" />
+
         <!-- Trip Title -->
         <TextView
             android:id="@+id/transport_title"
@@ -88,7 +94,17 @@
             android:layout_height="wrap_content"
             android:text="Available Seats: 3"
             android:textSize="14sp"
-            android:textColor="@android:color/holo_green_dark" />
+            android:textColor="@android:color/holo_green_dark"
+            android:layout_marginBottom="4dp" />
+
+        <!-- ADDED: Days Field (THIS WAS MISSING) -->
+        <TextView
+            android:id="@+id/transport_days"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Days: Mon, Tue, Wed"
+            android:textSize="13sp"
+            android:textColor="@android:color/darker_gray" />
 
     </LinearLayout>
 

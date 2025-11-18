@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.univibe.adapters.EventAdapter
 import com.example.univibe.databinding.ActivityMainBinding
 import com.example.univibe.models.Event
-import com.example.univibe.models.Transport
 import com.example.univibe.models.LostFoundItem
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore

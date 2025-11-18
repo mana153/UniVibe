@@ -3,53 +3,47 @@ package com.example.univibe.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.univibe.databinding.ItemTransportBinding
-import com.example.univibe.models.Transport
+import com.example.univibe.databinding.ItemEventBinding
+import com.example.univibe.models.Event
 
-class TransportAdapter(
-    private var items: List<Transport>,
-    private val onClick: (Transport) -> Unit
-) : RecyclerView.Adapter<TransportAdapter.TransportViewHolder>() {
+class EventAdapter(
+    private var items: List<Event>,
+    private val onClick: (Event) -> Unit
+) : RecyclerView.Adapter<EventAdapter.EventViewHolder>() {
 
-    inner class TransportViewHolder(private val binding: ItemTransportBinding) :
+    inner class EventViewHolder(private val binding: ItemEventBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(transport: Transport) {
-            binding.transportTitle.text = transport.routename  // Changed from routeName
-            binding.transportOrigin.text = transport.source
-            binding.transportDestination.text = transport.destination
-            binding.transportDepartureTime.text = "Departure: ${transport.departureTime}"
+        fun bind(event: Event) {
+            // ✅ Use underscore naming to match XML
+            binding.eventTitle.text = event.title
+            binding.eventDate.text = event.date
+            binding.eventLocation.text = event.location
+            binding.eventCategory.text = event.category
+            binding.eventDescription.text = event.description
 
-            // Handle nullable arrivalTime
-            binding.transportArrivalTime.text = if (transport.arrivalTime != null) {
-                "Arrival: ${transport.arrivalTime}"
-            } else {
-                "Arrival: Not specified"
-            }
+            // Description removed since it's not in the XML layout
 
-            // Changed from days list to dayType string
-            binding.transportDays.text = "Days: ${transport.dayType}"
-
-            binding.root.setOnClickListener { onClick(transport) }
+            binding.root.setOnClickListener { onClick(event) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransportViewHolder {
-        val binding = ItemTransportBinding.inflate(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
+        val binding = ItemEventBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-        return TransportViewHolder(binding)
+        return EventViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: TransportViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         holder.bind(items[position])
     }
 
     override fun getItemCount(): Int = items.size
 
-    fun updateData(newItems: List<Transport>) {
+    fun updateData(newItems: List<Event>) {
         items = newItems
         notifyDataSetChanged()
     }

@@ -15,7 +15,7 @@ class TransportAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(transport: Transport) {
-            binding.transportTitle.text = transport.routename  // Changed from routeName
+            binding.transportTitle.text = transport.routename
             binding.transportOrigin.text = transport.source
             binding.transportDestination.text = transport.destination
             binding.transportDepartureTime.text = "Departure: ${transport.departureTime}"

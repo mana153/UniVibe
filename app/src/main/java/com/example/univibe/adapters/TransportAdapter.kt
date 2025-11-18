@@ -7,30 +7,25 @@ import com.example.univibe.databinding.ItemTransportBinding
 import com.example.univibe.models.Transport
 
 class TransportAdapter(
-    private var items: List<Transport>,
+    private var items: ArrayList<Transport>,
     private val onClick: (Transport) -> Unit
 ) : RecyclerView.Adapter<TransportAdapter.TransportViewHolder>() {
 
     inner class TransportViewHolder(private val binding: ItemTransportBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(transport: Transport) {
-            binding.transportTitle.text = transport.routename
-            binding.transportOrigin.text = transport.source
-            binding.transportDestination.text = transport.destination
-            binding.transportDepartureTime.text = "Departure: ${transport.departureTime}"
+        fun bind(transport: Transport) = with(binding) {
+            transportTitle.text = transport.routename
+            transportOrigin.text = "From: ${transport.source}"
+            transportDestination.text = "To: ${transport.destination}"
+            transportDepartureTime.text = "Departure: ${transport.departureTime}"
+            transportArrivalTime.text =
+                if (transport.arrivalTime.isNotEmpty()) "Arrival: ${transport.arrivalTime}"
+                else "Arrival: Not specified"
 
-            // Handle nullable arrivalTime
-            binding.transportArrivalTime.text = if (transport.arrivalTime != null) {
-                "Arrival: ${transport.arrivalTime}"
-            } else {
-                "Arrival: Not specified"
-            }
+            transportDays.text = "Days: ${transport.dayType}"
 
-            // Changed from days list to dayType string
-            binding.transportDays.text = "Days: ${transport.dayType}"
-
-            binding.root.setOnClickListener { onClick(transport) }
+            root.setOnClickListener { onClick(transport) }
         }
     }
 
@@ -49,8 +44,9 @@ class TransportAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    fun updateData(newItems: List<Transport>) {
-        items = newItems
+    fun updateData(newItems: ArrayList<Transport>) {
+        items.clear()
+        items.addAll(newItems)
         notifyDataSetChanged()
     }
 }

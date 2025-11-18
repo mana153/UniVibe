@@ -5,6 +5,7 @@ import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,13 +21,14 @@ class AddEventActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddEventBinding
     private val db = FirebaseFirestore.getInstance()
+    private var selectedCategory: String = "Events"  // Default category
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddEventBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Toolbar
+        // Toolbar setup
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Add Event"
@@ -36,16 +38,27 @@ class AddEventActivity : AppCompatActivity() {
             finish()
         }
 
-        // Category spinner
+        // Category spinner setup
         val categories = listOf("Events", "Transport", "Lost & Found")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerCategory.adapter = adapter
 
-        // Date/time picker
+        // Listen for spinner selection to update selectedCategory
+        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedCategory = parent.getItemAtPosition(position).toString()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Do nothing
+            }
+        }
+
+        // Date/time picker setup
         binding.etEventDate.isFocusable = false
         binding.etEventDate.setOnClickListener { showDateTimePicker() }
 
+        // Save button click listener
         binding.btnSaveEvent.setOnClickListener {
             createEvent()
         }
@@ -80,15 +93,15 @@ class AddEventActivity : AppCompatActivity() {
         val description = binding.etEventDescription.text.toString().trim()
         val dateStr = binding.etEventDate.text.toString().trim()
         val location = binding.etEventLocation.text.toString().trim()
-        val category = binding.spinnerCategory.selectedItem.toString()
+        val category = selectedCategory
 
         // Validation
-        if (title.isEmpty() || description.isEmpty() || dateStr.isEmpty() || location.isEmpty() || category.isEmpty()) {
+        if (title.isEmpty() || description.isEmpty() || dateStr.isEmpty() || location.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Parse date
+        // Parse date string into Timestamp
         val eventTimestamp = try {
             val format = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
             Timestamp(format.parse(dateStr)!!)
@@ -97,11 +110,11 @@ class AddEventActivity : AppCompatActivity() {
             return
         }
 
-        // Show loader
+        // Show progress loader and disable save button
         binding.progressBar.visibility = View.VISIBLE
         binding.btnSaveEvent.isEnabled = false
 
-        // Save event
+        // Save event data to Firestore
         saveEventToFirestore(title, description, eventTimestamp, location, category)
     }
 
@@ -113,45 +126,41 @@ class AddEventActivity : AppCompatActivity() {
         category: String
     ) {
         val eventId = UUID.randomUUID().toString()
+        val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+        val dateString = dateFormat.format(timestamp.toDate())
 
-        try {
-            val newEvent = hashMapOf(
-                "id" to eventId,
-                "title" to title,
-                "description" to description,
-                "date" to timestamp,
-                "imageUrl" to "",
-                "location" to location,
-                "createdBy" to "demo",
-                "category" to category,
-                "createdAt" to Timestamp.now()
-            )
+        val newEvent = hashMapOf(
+            "id" to eventId,
+            "title" to title,
+            "description" to description,
+            "timestamp" to timestamp,
+            "date" to dateString,
+            "imageUrl" to "",
+            "location" to location,
+            "createdBy" to "admin",
+            "category" to category,
+            "createdAt" to Timestamp.now()
+        )
 
-            Log.d("AddEvent", "Saving event: $newEvent")
+        Log.d("AddEvent", "Saving event: $newEvent")
 
-            db.collection("events")
-                .document(eventId)
-                .set(newEvent)
-                .addOnSuccessListener {
-                    Log.d("AddEvent", "✅ Event created successfully!")
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnSaveEvent.isEnabled = true
-                    Toast.makeText(this, "Event created successfully!", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_OK)
-                    finish()
-                }
-                .addOnFailureListener { e ->
-                    Log.e("AddEvent", "❌ Failed to save", e)
-                    binding.progressBar.visibility = View.GONE
-                    binding.btnSaveEvent.isEnabled = true
-                    Toast.makeText(this, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-        } catch (e: Exception) {
-            Log.e("AddEvent", "Error creating event", e)
-            binding.progressBar.visibility = View.GONE
-            binding.btnSaveEvent.isEnabled = true
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-        }
+        db.collection("events")
+            .document(eventId)
+            .set(newEvent)
+            .addOnSuccessListener {
+                Log.d("AddEvent", "Event created successfully!")
+                binding.progressBar.visibility = View.GONE
+                binding.btnSaveEvent.isEnabled = true
+                Toast.makeText(this, "Event created successfully!", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Log.e("AddEvent", "Failed to save event", e)
+                binding.progressBar.visibility = View.GONE
+                binding.btnSaveEvent.isEnabled = true
+                Toast.makeText(this, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -17,7 +17,7 @@
         android:textColor="@color/grey_300"
         android:layout_marginBottom="32dp" />
 
-    <!-- Circular card with image -->
+    <!-- Circular card with circular image only -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="280dp"
         android:layout_height="280dp"
@@ -26,34 +26,15 @@
         app:cardBackgroundColor="@color/grey_100"
         android:layout_marginBottom="48dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/logoImage"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_centerInParent="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/login" />
-
-
-            <!-- Upgrade Plan Button (optional inside card) -->
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.UniVibe.Button.Outlined"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="UPGRADE PLAN"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="8dp"
-                app:cornerRadius="20dp" />
-
-        </RelativeLayout>
+        <ImageView
+            android:id="@+id/logoImage"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/circle_app"
+            android:clipToOutline="true"
+            android:outlineProvider="background" />
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Email Input -->

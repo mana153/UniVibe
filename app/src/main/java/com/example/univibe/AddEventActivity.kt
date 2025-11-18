@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.univibe.databinding.ActivityAddEventBinding
-import com.example.univibe.models.Event
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -31,6 +30,11 @@ class AddEventActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Add Event"
+
+        // Back button
+        binding.toolbar.setNavigationOnClickListener {
+            finish()
+        }
 
         // Category spinner
         val categories = listOf("Events", "Transport", "Lost & Found")
@@ -97,11 +101,17 @@ class AddEventActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.VISIBLE
         binding.btnSaveEvent.isEnabled = false
 
-        // Save without image (SIMPLIFIED)
+        // Save event
         saveEventToFirestore(title, description, eventTimestamp, location, category)
     }
 
-    private fun saveEventToFirestore(title: String, description: String, timestamp: Timestamp, location: String, category: String) {
+    private fun saveEventToFirestore(
+        title: String,
+        description: String,
+        timestamp: Timestamp,
+        location: String,
+        category: String
+    ) {
         val eventId = UUID.randomUUID().toString()
 
         try {
@@ -112,7 +122,7 @@ class AddEventActivity : AppCompatActivity() {
                 "date" to timestamp,
                 "imageUrl" to "",
                 "location" to location,
-                "createdBy" to "user_123",
+                "createdBy" to "demo",
                 "category" to category,
                 "createdAt" to Timestamp.now()
             )
@@ -127,7 +137,7 @@ class AddEventActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     binding.btnSaveEvent.isEnabled = true
                     Toast.makeText(this, "Event created successfully!", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_OK)  // Tell MainActivity to refresh
+                    setResult(RESULT_OK)
                     finish()
                 }
                 .addOnFailureListener { e ->
@@ -144,15 +154,7 @@ class AddEventActivity : AppCompatActivity() {
         }
     }
 
-    Log.d("AddEventActivity", "✅ Creating event: $title | Category: $category | Date: $dateStr")
-
-    .addOnSuccessListener {
-        Log.d("AddEventActivity", "✅ Event saved to Firestore with ID: ${it.id}")
-        binding.progressBar.visibility = View.GONE
-        binding.btnSaveEvent.isEnabled = true
-        Toast.makeText(this, "Event created successfully!", Toast.LENGTH_SHORT).show()
-
-        override fun onSupportNavigateUp(): Boolean {
+    override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
     }

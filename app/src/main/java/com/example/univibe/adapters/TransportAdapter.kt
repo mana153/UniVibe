@@ -3,28 +3,43 @@ package com.example.univibe.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.univibe.R
 import com.example.univibe.databinding.ItemTransportBinding
 import com.example.univibe.models.Transport
 
-class TransportAdapter(private var items: List<Transport>, private val onClick: (Transport) -> Unit) :
-    RecyclerView.Adapter<TransportAdapter.TransportViewHolder>() {
+class TransportAdapter(
+    private var items: List<Transport>,
+    private val onClick: (Transport) -> Unit
+) : RecyclerView.Adapter<TransportAdapter.TransportViewHolder>() {
 
-    inner class TransportViewHolder(private val binding: ItemTransportBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class TransportViewHolder(private val binding: ItemTransportBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
         fun bind(transport: Transport) {
-            binding.transportTitle.text = transport.routeName
+            binding.transportTitle.text = transport.routename  // Changed from routeName
             binding.transportOrigin.text = transport.source
             binding.transportDestination.text = transport.destination
             binding.transportDepartureTime.text = "Departure: ${transport.departureTime}"
-            binding.transportArrivalTime.text = "Arrival: ${transport.arrivalTime}"
-            binding.transportDays.text = "Days: ${transport.days.joinToString(", ")}"
+
+            // Handle nullable arrivalTime
+            binding.transportArrivalTime.text = if (transport.arrivalTime != null) {
+                "Arrival: ${transport.arrivalTime}"
+            } else {
+                "Arrival: Not specified"
+            }
+
+            // Changed from days list to dayType string
+            binding.transportDays.text = "Days: ${transport.dayType}"
 
             binding.root.setOnClickListener { onClick(transport) }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransportViewHolder {
-        val binding = ItemTransportBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemTransportBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return TransportViewHolder(binding)
     }
 
@@ -39,4 +54,3 @@ class TransportAdapter(private var items: List<Transport>, private val onClick: 
         notifyDataSetChanged()
     }
 }
-

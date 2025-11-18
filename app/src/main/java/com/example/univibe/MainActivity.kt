@@ -11,8 +11,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.univibe.adapters.EventAdapter
 import com.example.univibe.databinding.ActivityMainBinding
 import com.example.univibe.models.Event
+import com.example.univibe.models.Transport
+import com.example.univibe.models.LostFoundItem
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             Log.d("MainActivity", "✅ Event added, real-time listener will auto-refresh")
-            binding.progressBar.visibility = View.VISIBLE
+            Toast.makeText(this, "Event added successfully", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -49,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         binding.swipeRefresh.setOnRefreshListener {
             Log.d("MainActivity", "🔄 Refreshing...")
             binding.progressBar.visibility = View.VISIBLE
+            setupRealtimeListener()
         }
 
         // ✅ FAB with launcher
@@ -56,34 +63,32 @@ class MainActivity : AppCompatActivity() {
             addEventLauncher.launch(Intent(this, AddEventActivity::class.java))
         }
 
-        // Bottom navigation
-        binding.bottomNavigation.selectedItemId = R.id.nav_home
+        // ✅ Bottom navigation - FIXED
+        if (savedInstanceState == null) {
+            binding.bottomNavigation.selectedItemId = R.id.nav_home
+        }
+
         binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> true
                 R.id.nav_search -> {
-                    try {
-                        startActivity(Intent(this, SearchActivity::class.java))
-                    } catch (e: Exception) {
-                        Toast.makeText(this, "Search coming soon!", Toast.LENGTH_SHORT).show()
-                    }
-                    true
+                    startActivity(Intent(this, SearchActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
                 }
                 R.id.nav_add -> {
                     addEventLauncher.launch(Intent(this, AddEventActivity::class.java))
-                    true
+                    false
                 }
                 R.id.nav_notifications -> {
-                    try {
-                        startActivity(Intent(this, NotificationsActivity::class.java))
-                    } catch (e: Exception) {
-                        Toast.makeText(this, "Notifications coming soon!", Toast.LENGTH_SHORT).show()
-                    }
-                    true
+                    startActivity(Intent(this, NotificationsActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
                 }
                 R.id.nav_profile -> {
-                    Toast.makeText(this, "Profile coming soon!", Toast.LENGTH_SHORT).show()
-                    true
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    overridePendingTransition(0, 0)
+                    false
                 }
                 else -> false
             }
@@ -93,25 +98,25 @@ class MainActivity : AppCompatActivity() {
         binding.chipAll.setOnClickListener {
             currentFilter = "All"
             Log.d("MainActivity", "🔹 Filter: All")
-            applyFilter()
+            setupRealtimeListener()
         }
 
         binding.chipEvents.setOnClickListener {
             currentFilter = "Events"
             Log.d("MainActivity", "🔹 Filter: Events")
-            applyFilter()
+            setupRealtimeListener()
         }
 
         binding.chipTransport.setOnClickListener {
             currentFilter = "Transport"
             Log.d("MainActivity", "🔹 Filter: Transport")
-            applyFilter()
+            setupRealtimeListener()
         }
 
         binding.chipLostFound.setOnClickListener {
             currentFilter = "Lost & Found"
             Log.d("MainActivity", "🔹 Filter: Lost & Found")
-            applyFilter()
+            setupRealtimeListener()
         }
 
         // Initial load with REAL-TIME listener
@@ -122,83 +127,182 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d("MainActivity", "↩️ onResume called")
+        // ✅ Re-select home when returning to MainActivity
+        binding.bottomNavigation.selectedItemId = R.id.nav_home
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // ⚠️ CRITICAL: Clean up listener to prevent memory leaks
         firestoreListener?.remove()
         Log.d("MainActivity", "🛑 Firestore listener removed")
     }
 
     /**
-     * 🔥 REAL-TIME LISTENER - Automatically updates UI when Firebase changes
-     * This is the KEY fix for cards not showing after event creation!
+     * 🔥 REAL-TIME LISTENER - Handles Events, Transport, and Lost & Found
      */
     private fun setupRealtimeListener() {
-        Log.d("MainActivity", "📡 Setting up REAL-TIME Firestore listener...")
+        firestoreListener?.remove()
+        binding.progressBar.visibility = View.VISIBLE
 
-        firestoreListener = db.collection("events")
-            .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
+        Log.d("MainActivity", "📡 Setting up listener for: $currentFilter")
+
+        when (currentFilter) {
+            "Transport" -> loadTransportData()
+            "Lost & Found" -> loadLostFoundData()
+            else -> loadEventsData()
+        }
+    }
+
+    // ✅ Load Events - Properly handles Timestamp fields
+    private fun loadEventsData() {
+        val query = if (currentFilter == "All") {
+            db.collection("events")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+        } else {
+            db.collection("events")
+                .whereEqualTo("category", currentFilter)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+        }
+
+        firestoreListener = query.addSnapshotListener { snapshot, error ->
+            binding.swipeRefresh.isRefreshing = false
+
+            if (error != null) {
+                Log.e("MainActivity", "❌ Error loading events: ${error.message}")
+                binding.progressBar.visibility = View.GONE
+
+                // Handle missing index error
+                if (error.message?.contains("index") == true) {
+                    Toast.makeText(this, "Creating database index. Please wait...", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "Error loading events", Toast.LENGTH_SHORT).show()
+                }
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null) {
+                val events = snapshot.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Event::class.java)?.copy(
+                            id = doc.id,
+                            // Ensure date is properly formatted if timestamp exists
+                            date = if (doc.getTimestamp("timestamp") != null) {
+                                formatTimestamp(doc.getTimestamp("timestamp"))
+                            } else {
+                                doc.getString("date") ?: ""
+                            }
+                        )
+                    } catch (e: Exception) {
+                        Log.e("MainActivity", "Error parsing event: ${e.message}")
+                        null
+                    }
+                }
+                allEvents.clear()
+                allEvents.addAll(events)
+                adapter.updateData(allEvents)
+                binding.progressBar.visibility = View.GONE
+                Log.d("MainActivity", "✅ Loaded ${events.size} events")
+            }
+        }
+    }
+
+    // ✅ Load Transport - Updated for busRoutes collection
+    private fun loadTransportData() {
+        firestoreListener = db.collection("busRoutes")
+            .whereEqualTo("active", true)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 binding.swipeRefresh.isRefreshing = false
 
                 if (error != null) {
-                    Log.e("MainActivity", "❌ Listener error: ${error.message}")
+                    Log.e("MainActivity", "❌ Error loading transport: ${error.message}")
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Error loading transport", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
                 if (snapshot != null) {
-                    try {
-                        val newEventsList = snapshot.documents.mapNotNull { doc ->
-                            try {
-                                doc.toObject(Event::class.java)?.also {
-                                    Log.d("MainActivity", "📦 Event: ${it.title} | Category: ${it.category}")
-                                }
-                            } catch (e: Exception) {
-                                Log.e("MainActivity", "Parse error: ${e.message}")
-                                null
-                            }
+                    val transportEvents = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            Event(
+                                id = doc.id,
+                                title = doc.getString("routename") ?: "Unknown Route",
+                                description = "${doc.getString("source") ?: ""} → ${doc.getString("destination") ?: ""}\n${doc.getString("departureTime") ?: ""}",
+                                date = doc.getString("departureTime") ?: "",
+                                timestamp = doc.getTimestamp("createdAt"),
+                                location = doc.getString("source") ?: "",
+                                category = "Transport",
+                                createdBy = doc.getString("createdBy") ?: "",
+                                createdAt = doc.getTimestamp("createdAt")
+                            )
+                        } catch (e: Exception) {
+                            Log.e("MainActivity", "Error parsing transport: ${e.message}")
+                            null
                         }
-
-                        allEvents.clear()
-                        allEvents.addAll(newEventsList)
-                        Log.d("MainActivity", "✅ Loaded ${allEvents.size} total events from Firebase")
-
-                        // Apply current filter
-                        applyFilter()
-
-                        binding.progressBar.visibility = View.GONE
-
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "Exception: ${e.message}")
-                        binding.progressBar.visibility = View.GONE
                     }
+                    allEvents.clear()
+                    allEvents.addAll(transportEvents)
+                    adapter.updateData(allEvents)
+                    binding.progressBar.visibility = View.GONE
+                    Log.d("MainActivity", "✅ Loaded ${transportEvents.size} transport items")
                 }
             }
     }
 
-    /**
-     * Apply current filter to allEvents and update adapter
-     */
-    private fun applyFilter() {
-        val filteredList = if (currentFilter == "All") {
-            Log.d("MainActivity", "📊 Showing ALL ${allEvents.size} events")
-            allEvents
-        } else {
-            val filtered = allEvents.filter { event ->
-                event.category.equals(currentFilter, ignoreCase = true)
+    // ✅ Load Lost & Found
+    private fun loadLostFoundData() {
+        firestoreListener = db.collection("lostAndFound")
+            .whereEqualTo("status", "active")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                binding.swipeRefresh.isRefreshing = false
+
+                if (error != null) {
+                    Log.e("MainActivity", "❌ Error loading lost & found: ${error.message}")
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(this, "Error loading lost & found", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val lostFoundEvents = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            val createdAtTimestamp = doc.getTimestamp("createdAt")
+                            Event(
+                                id = doc.id,
+                                title = doc.getString("itemName") ?: "Unknown Item",
+                                description = doc.getString("description") ?: "",
+                                date = formatTimestamp(createdAtTimestamp),
+                                timestamp = createdAtTimestamp,
+                                location = doc.getString("locationLost") ?: "",
+                                category = "Lost & Found",
+                                createdBy = doc.getString("createdBy") ?: "",
+                                createdAt = createdAtTimestamp
+                            )
+                        } catch (e: Exception) {
+                            Log.e("MainActivity", "Error parsing lost item: ${e.message}")
+                            null
+                        }
+                    }
+                    allEvents.clear()
+                    allEvents.addAll(lostFoundEvents)
+                    adapter.updateData(allEvents)
+                    binding.progressBar.visibility = View.GONE
+                    Log.d("MainActivity", "✅ Loaded ${lostFoundEvents.size} lost items")
+                }
             }
-            Log.d("MainActivity", "📊 Filtered: ${filtered.size} events (Category: $currentFilter)")
-            filtered
-        }
+    }
 
-        adapter.updateData(filteredList)
-
-        if (filteredList.isEmpty()) {
-            Log.d("MainActivity", "⚠️ No events found for: $currentFilter")
+    // ✅ Helper function to format Timestamp to readable date string
+    private fun formatTimestamp(timestamp: Timestamp?): String {
+        return try {
+            timestamp?.toDate()?.let {
+                val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+                sdf.format(it)
+            } ?: ""
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error formatting timestamp: ${e.message}")
+            ""
         }
     }
 }

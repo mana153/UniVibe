@@ -3,14 +3,14 @@ package com.example.univibe.models
 import com.google.firebase.firestore.DocumentId
 
 data class Transport(
-    @DocumentId
     val id: String = "",
-    val routeName: String = "",
+    val routename: String = "",  // Note: lowercase 'n' in your DB
     val source: String = "",
     val destination: String = "",
     val departureTime: String = "",
-    val arrivalTime: String = "",
-    val days: List<String> = emptyList(),
+    val arrivalTime: String? = null,
+    val dayType: String = "",  // "Daily" or "Saturday"
     val active: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdBy: String = "",
+    val createdAt: com.google.firebase.Timestamp? = null
 )

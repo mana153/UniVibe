@@ -27,6 +27,10 @@
             android:name=".LoginActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".LostFoundActivity"
+            android:exported="false" />
+
         <!-- Main Activity (Discover feed with bottom navigation) -->
         <activity
             android:name=".MainActivity"

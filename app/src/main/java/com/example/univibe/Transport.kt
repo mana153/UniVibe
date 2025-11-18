@@ -2,7 +2,7 @@ package com.example.univibe
 
 import com.google.firebase.Timestamp
 
-data class Transport(
+data lass Transport(
     val id: String = "",
     val routeName: String = "",
     val source: String = "",
